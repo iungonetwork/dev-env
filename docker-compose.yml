@@ -1,0 +1,35 @@
+version: '3'
+services:
+  app:
+    image: webdevops/php-nginx
+    environment:
+      WEB_DOCUMENT_ROOT: /app/public
+    ports:
+      - "10080:80"
+    volumes:
+      - .:/app
+    links:
+      - db
+  db:
+    image: mysql
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+  radius:
+    image: tpdock/freeradius
+    ports:
+      - "11812:1812/udp"
+      - "11813:1813/udp"
+    environment:
+      RADIUS_LISTEN_IP: '*'
+      RADIUS_CLIENTS: secret@0.0.0.0/0
+      RADIUS_SQL: 'true'
+      RADIUS_DB_HOST: db
+      RADIUS_DB_NAME: radius
+      RADIUS_DB_USERNAME: _SET_USER_
+      RADIUS_DB_PASSWORD: _SET_PASSWORD_
+    links:
+      - db
